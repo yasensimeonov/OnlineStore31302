@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Collections.Generic;
 using Core.Entities;
 using System;
+using Infrastructure.Helpers;
 
 namespace Infrastructure.Data
 {
@@ -23,10 +24,11 @@ namespace Infrastructure.Data
 
                     foreach (var item in brands)
                     {
-                        context.ProductBrands.Add(item);
+                        context.ProductBrands.Add(item);                        
                     }
 
-                    await context.SaveChangesAsync();
+                    // await context.SaveChangesAsync();
+                    await context.SaveChangesWithIdentityInsert<ProductBrand>();
                 }
 
                 if (!context.ProductTypes.Any())
@@ -37,10 +39,11 @@ namespace Infrastructure.Data
 
                     foreach (var item in types)
                     {
-                        context.ProductTypes.Add(item);
+                        context.ProductTypes.Add(item);                        
                     }
 
-                    await context.SaveChangesAsync();
+                    // await context.SaveChangesAsync();
+                    await context.SaveChangesWithIdentityInsert<ProductType>();
                 }
 
                 if (!context.Products.Any())
