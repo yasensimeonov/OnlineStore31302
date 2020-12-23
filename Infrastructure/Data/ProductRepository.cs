@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Core.Entities;
 using Core.Interfaces;
@@ -27,6 +28,8 @@ namespace Infrastructure.Data
 
         public async Task<IReadOnlyList<Product>> GetProductsAsync()
         {
+            // var products = _context.Products.OrderBy(p => p.Price);
+            
             return await _context.Products.Include(b => b.ProductBrand).Include(t => t.ProductType)
                 .ToListAsync();
         }
