@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using Core.Entities;
 using System;
 using Infrastructure.Helpers;
+using Core.Entities.OrderAggregate;
 
 namespace Infrastructure.Data
 {
@@ -45,6 +46,21 @@ namespace Infrastructure.Data
                     // await context.SaveChangesAsync();
                     await context.SaveChangesWithIdentityInsert<ProductType>();
                 }
+
+                if (!context.DeliveryMethods.Any())
+                {
+                    var dmData = File.ReadAllText("../Infrastructure/Data/SeedData/delivery.json");
+
+                    var deliveryMethods = JsonSerializer.Deserialize<List<DeliveryMethod>>(dmData);
+
+                    foreach (var item in deliveryMethods)
+                    {
+                        context.DeliveryMethods.Add(item);                        
+                    }
+
+                    // await context.SaveChangesAsync();
+                    await context.SaveChangesWithIdentityInsert<DeliveryMethod>();
+                }                
 
                 if (!context.Products.Any())
                 {
