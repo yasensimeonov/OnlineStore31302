@@ -7,7 +7,7 @@ import {
 } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { NavigationExtras, Router } from '@angular/router';
-import { catchError } from 'rxjs/operators';
+import { catchError, delay } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 
 @Injectable()
@@ -16,7 +16,7 @@ export class ErrorInterceptor implements HttpInterceptor {
   constructor(private router: Router, private toastr: ToastrService) {}
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    return next.handle(request).pipe(
+    return next.handle(request).pipe(      
       catchError(error => {
         if (error) {
           if (error.status === 400) {
