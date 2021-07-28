@@ -6,12 +6,13 @@ import { IType } from '../shared/models/productType';
 import { map, retry } from 'rxjs/operators';
 import { ShopParams } from '../shared/models/shopparams';
 import { IProduct } from '../shared/models/product';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ShopService {
-  baseurl = 'https://localhost:5001/api/';
+  baseUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) { }
 
@@ -34,7 +35,7 @@ export class ShopService {
     params = params.append('pageIndex', shopParams.pageNumber.toString());
     params = params.append('pageSize', shopParams.pageSize.toString());
 
-    return this.http.get<IPagination>(this.baseurl + 'products', {observe: 'response', params})
+    return this.http.get<IPagination>(this.baseUrl + 'products', {observe: 'response', params})
       .pipe(
         map(response => {
           return response.body;
@@ -43,14 +44,14 @@ export class ShopService {
   }
 
   getProduct(id: number) {
-    return this.http.get<IProduct>(this.baseurl + 'products/' + id);
+    return this.http.get<IProduct>(this.baseUrl + 'products/' + id);
   }
 
   getBrands() {
-    return this.http.get<IBrand[]>(this.baseurl + 'products/brands');
+    return this.http.get<IBrand[]>(this.baseUrl + 'products/brands');
   }
 
   getTypes() {
-    return this.http.get<IType[]>(this.baseurl + 'products/types');
+    return this.http.get<IType[]>(this.baseUrl + 'products/types');
   }
 }
