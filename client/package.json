@@ -22,7 +22,7 @@
     "bootstrap": "4.6.0",
     "bootswatch": "^4.6.0",
     "font-awesome": "^4.7.0",
-    "ngx-bootstrap": "^7.0.0-rc.1",
+    "ngx-bootstrap": "^7.0.0",
     "ngx-spinner": "^11.0.2",
     "ngx-toastr": "^13.2.1",
     "rxjs": "~6.6.6",
