@@ -11,7 +11,7 @@ namespace Infrastructure.Data.Config
         {
             builder.OwnsOne(o => o.ShipToAddress, a => 
             {
-                a.WithOwner();                
+                a.WithOwner();
             });
             builder.Property(s => s.Status)
                 .HasConversion(
