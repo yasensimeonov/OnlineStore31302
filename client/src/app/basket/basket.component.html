@@ -8,17 +8,30 @@
             <div class="container">
                 <div class="row">
                     <div class="col-12 py-5 mb-1">
+                        <!-- <app-basket-summary
+                            (decrement)="decrementItemQuantity($event)"
+                            (increment)="incrementItemQuantity($event)"
+                            (remove)="removeBasketItem($event)"
+                        ></app-basket-summary> -->
                         <app-basket-summary
                             (decrement)="decrementItemQuantity($event)"
                             (increment)="incrementItemQuantity($event)"
                             (remove)="removeBasketItem($event)"
-                        ></app-basket-summary>
+                            [items]="(basket$ | async).items"
+                        ></app-basket-summary>                        
                     </div>
                 </div>
                 
                 <div class="row">
                     <div class="col-6 offset-6">
-                        <app-order-totals></app-order-totals>
+                        <!-- <app-order-totals></app-order-totals> -->
+                        <app-order-totals
+                            *ngIf="(basketTotals$ | async) as basketTotals"
+                            [shippingPrice]="basketTotals.shipping"
+                            [subTotal]="basketTotals.subtotal"
+                            [total]="basketTotals.total"
+                        >
+                        </app-order-totals>
                         <a routerLink="/checkout" class="btn btn-outline-primary py-2 btn-block">
                             Proceed to checkout
                         </a>
