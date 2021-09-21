@@ -9,10 +9,13 @@ button.nav-link {
     &.active:hover {
         color: white;
     }
-    & :active {
+    &:active {
         outline: none;
     }
     &.active:focus {
         outline: none;
+    }
+    &:disabled:not(.active) {
+       color: #333; 
     }
 }
