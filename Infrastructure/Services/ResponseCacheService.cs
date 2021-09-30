@@ -41,6 +41,7 @@ namespace Infrastructure.Services
             }
 
             return cachedResponse;
-        }        
+        }
+        
     }
 }

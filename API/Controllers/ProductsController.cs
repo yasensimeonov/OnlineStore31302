@@ -113,5 +113,6 @@ namespace API.Controllers
             // return Ok(await _repo.GetProductTypesAsync());
             return Ok(await _productTypeRepo.ListAllAsync());
         }
+        
     }
 }
