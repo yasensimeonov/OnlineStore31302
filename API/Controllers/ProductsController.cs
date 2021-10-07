@@ -161,6 +161,10 @@ namespace API.Controllers
             {
                 productToUpdate.PictureUrl = "images/products/placeholder.png";
             }
+            else
+            {
+                productToUpdate.PictureUrl = product.PictureUrl;
+            }
 
             _mapper.Map(productToUpdate, product);
 
