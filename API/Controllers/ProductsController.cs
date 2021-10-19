@@ -134,10 +134,11 @@ namespace API.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<Product>> CreateProduct(ProductCreateDto productToCreate)
+        // public async Task<ActionResult<Product>> CreateProduct(ProductCreateDto productToCreate)
+        public async Task<ActionResult<ProductToReturnDto>> CreateProduct(ProductCreateDto productToCreate)
         {
             var product = _mapper.Map<ProductCreateDto, Product>(productToCreate);
-            product.PictureUrl = "images/products/placeholder.png";
+            // product.PictureUrl = "images/products/placeholder.png";
 
             _unitOfWork.Repository<Product>().Add(product);
 
@@ -148,23 +149,25 @@ namespace API.Controllers
                 return BadRequest(new ApiResponse(400, "Problem creating product"));
             }
 
-            return Ok(product);
+            // return Ok(product);
+            return Ok(_mapper.Map<Product, ProductToReturnDto>(product));
         }
         
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<Product>> UpdateProduct(int id, ProductCreateDto productToUpdate)
+        // public async Task<ActionResult<Product>> UpdateProduct(int id, ProductCreateDto productToUpdate)
+        public async Task<ActionResult<ProductToReturnDto>> UpdateProduct(int id, ProductCreateDto productToUpdate)
         {
             var product = await _unitOfWork.Repository<Product>().GetByIdAsync(id);
 
-            if (productToUpdate.PictureUrl == null)
-            {
-                productToUpdate.PictureUrl = "images/products/placeholder.png";
-            }
-            else
-            {
-                productToUpdate.PictureUrl = product.PictureUrl;
-            }
+            // if (productToUpdate.PictureUrl == null)
+            // {
+            //     productToUpdate.PictureUrl = "images/products/placeholder.png";
+            // }
+            // else
+            // {
+            //     productToUpdate.PictureUrl = product.PictureUrl;
+            // }
 
             _mapper.Map(productToUpdate, product);
 
@@ -177,7 +180,8 @@ namespace API.Controllers
                 return BadRequest(new ApiResponse(400, "Problem updating product"));
             } 
 
-            return Ok(product);
+            // return Ok(product);
+            return Ok(_mapper.Map<Product, ProductToReturnDto>(product));
         }
         
         [HttpDelete("{id}")]
