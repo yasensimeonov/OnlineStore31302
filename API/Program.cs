@@ -1,55 +1,96 @@
-using System;
-using System.Threading.Tasks;
+using StackExchange.Redis;
 using Core.Entities.Identity;
-using Infrastructure.Data;
-using Infrastructure.Identity;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
-namespace API
+var builder = WebApplication.CreateBuilder(args);
+
+// Add Services to the Container
+
+if (builder.Environment.IsDevelopment())
 {
-    public class Program
+    builder.Services.AddDbContext<StoreContext>(x => x.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    builder.Services.AddDbContext<AppIdentityDbContext>(x => x.UseSqlServer(builder.Configuration.GetConnectionString("IdentityConnection")));
+
+    ConfigureServices();
+}
+else if (builder.Environment.IsProduction())
+{
+    builder.Services.AddDbContext<StoreContext>(x => x.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    builder.Services.AddDbContext<AppIdentityDbContext>(x => x.UseSqlServer(builder.Configuration.GetConnectionString("IdentityConnection")));
+
+    ConfigureServices();
+}
+
+void ConfigureServices()
+{
+    builder.Services.AddAutoMapper(typeof(MappingProfiles));
+
+    builder.Services.AddControllers();
+
+    builder.Services.AddSingleton<IConnectionMultiplexer>(c => {
+        var configuration = ConfigurationOptions.Parse(builder.Configuration.GetConnectionString("Redis"), true);
+        return ConnectionMultiplexer.Connect(configuration);
+    });
+
+    builder.Services.AddApplicationServices();
+    builder.Services.AddIdentityServices(builder.Configuration);
+    builder.Services.AddSwaggerDocumentation();
+
+    builder.Services.AddCors(opt =>
     {
-        public static async Task Main(string[] args)
+        opt.AddPolicy("CorsPolicy", policy =>
         {
-            var host = CreateHostBuilder(args).Build();
-            using (var scope = host.Services.CreateScope())
-            {
-                var services = scope.ServiceProvider;
-                var loggerFactory = services.GetRequiredService<ILoggerFactory>();
+            policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("https://localhost:4200");
+        });
+    });
+}
 
-                try
-                {
-                    var context = services.GetRequiredService<StoreContext>();
-                    await context.Database.MigrateAsync();  
-                    await StoreContextSeed.SeedAsync(context, loggerFactory);
-                    var userManager = services.GetRequiredService<UserManager<AppUser>>();
 
-                    var roleManager = services.GetRequiredService<RoleManager<AppRole>>();
+// Configure the HTTP Request Pipeline
 
-                    var identityContext = services.GetRequiredService<AppIdentityDbContext>();
-                    await identityContext.Database.MigrateAsync();
-                    await AppIdentityDbContextSeed.SeedUserAsync(userManager, roleManager);
-                }
-                catch (Exception ex)
-                {
-                    var logger = loggerFactory.CreateLogger<Program>();
-                    logger.LogError(ex, "An error occured during migration");
-                }
-            }
+var app = builder.Build();
 
-            host.Run();
-        }
+app.UseMiddleware<ExceptionMiddleware>();
+app.UseStatusCodePagesWithReExecute("/errors/{0}");
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
+app.UseHttpsRedirection();
+
+// app.UseRouting();
+app.UseStaticFiles();
+
+app.UseCors("CorsPolicy");
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.UseSwaggerDocumentation();
+
+app.MapControllers();
+
+
+// var host = CreateHostBuilder(args).Build();
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var loggerFactory = services.GetRequiredService<ILoggerFactory>();
+
+    try
+    {
+        var context = services.GetRequiredService<StoreContext>();
+        await context.Database.MigrateAsync();  
+        await StoreContextSeed.SeedAsync(context, loggerFactory);
+        var userManager = services.GetRequiredService<UserManager<AppUser>>();
+
+        var roleManager = services.GetRequiredService<RoleManager<AppRole>>();
+
+        var identityContext = services.GetRequiredService<AppIdentityDbContext>();
+        await identityContext.Database.MigrateAsync();
+        await AppIdentityDbContextSeed.SeedUserAsync(userManager, roleManager);
+    }
+    catch (Exception ex)
+    {
+        var logger = loggerFactory.CreateLogger<Program>();
+        logger.LogError(ex, "An error occured during migration");
     }
 }
+
+await app.RunAsync();
